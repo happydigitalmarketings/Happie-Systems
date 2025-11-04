@@ -1,0 +1,74 @@
+/* Drawer Styles */
+.drawer {
+    position: fixed;
+    top: 0;
+    left: -250px; /* Initially hide the drawer */
+    width: 250px;
+    height: 100%;
+    background-color: #fff;
+    color: white;
+    transition: 0.3s ease;
+    z-index: 999;
+    padding-top: 20px;
+    box-shadow: 2px 0px 5px rgba(0, 0, 0, 0.5);
+  }
+  
+  .drawer.open {
+    left: 0; /*When open, shift the drawer into view */
+    transform: translateX(0);
+  }
+  
+  .drawer .filter-content {
+    padding: 10px;
+  }
+  
+  .drawer h2 {
+    font-size: 18px;
+    margin-bottom: 10px;
+  }
+  
+  .drawer .form-check {
+    margin-bottom: 10px;
+  }
+  
+  /* Optional: overlay when drawer is open */
+  .drawer-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 998;
+    display: none;
+  }
+  
+  .drawer.open + .drawer-overlay {
+    display: block;
+  }
+
+  /* .row>*
+  {
+     width: auto !important;
+  } */
+
+  .btn-outline-secondary
+  {
+    margin-left: 3px;
+  }
+
+ .apply-btn
+ {
+  position: relative;
+  padding: 10px 20px;
+  top: -38px;
+  bottom: 0px;
+  left: 50px;
+  z-index: 1001;
+  width: 80px;
+  display: block;
+  color: #FF9800;
+  float: left;
+  border: solid 1px #9E9E9E;
+  cursor: pointer;
+ }

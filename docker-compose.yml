@@ -1,0 +1,43 @@
+# version: '3'
+# services:
+#   mongo:
+#     image: mongo:latest
+#     ports:
+#       - "27017:27017"
+#     volumes:
+#       - mongo-data:/data/db
+
+#   backend:
+#     build: .
+#     ports:
+#       - "9000:9000"
+#     environment:
+#       - MONGODB_URL=mongodb://mongo:27017/Productlist
+#     depends_on:
+#       - mongo
+
+# volumes:
+#   mongo-data:
+
+
+
+version: '3.8'
+services:
+  client:
+    build:
+      context: ./client # Path to the frontend Dockerfile
+      dockerfile: Dockerfile # Name of the Dockerfile if different
+    ports:
+      - "80:80"  # Map host port 80 to container port 80
+    depends_on:
+      - backend  # Ensure backend is started first
+
+  backend:
+    build:
+      context: ./backend  # Path to the backend Dockerfile
+      dockerfile: Dockerfile # Name of the Dockerfile if different
+    ports:
+      - "9000:9000"  # Map host port 9000 to container port 9000
+    environment:
+      - MONGODB_URI=mongodb://your_mongo_db_uri_here
+      - PORT=9000
