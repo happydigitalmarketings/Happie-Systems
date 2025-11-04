@@ -4,7 +4,9 @@ import cors from "cors";
 import dotenv from "dotenv";
 import Product from "./models/productModel.js";
 
-dotenv.config();
+dotenv.config({
+  path: process.env.NODE_ENV === 'production' ? '.env' : '.env.development'
+});
 
 const app = express();
 app.use(cors());
@@ -50,11 +52,9 @@ app.get("/api/products", async (req, res) => {
 });
 
 
-if (process.env.NODE_ENV !== 'production') {
-  const PORT = process.env.PORT || 5000;
-  app.listen(PORT, () => {
-    console.log(`🚀 Server running on http://localhost:${PORT}`);
-  });
-}
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on http://localhost:${PORT}`);
+});
 
 export default app;
