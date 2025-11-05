@@ -1,6 +1,5 @@
-const Product = require("../models/productModel");
-
-const cloudinary = require("cloudinary").v2;
+import Product from "../models/productModel.js";
+import { v2 as cloudinary } from "cloudinary";
 
 // Configure Cloudinary
 cloudinary.config({
@@ -133,7 +132,7 @@ const getProducts = async (req, res) => {
     const skip = (page - 1) * limit;
    
 
-    const { search, filterDell, filterHp, filterLenovo, priceRange, ...otherFilters } =
+    const { page: _page, search, filterDell, filterHp, filterLenovo, priceRange, ...otherFilters } =
       req.query;
     const allowedFilters = ["filterDell", "filterHp", "filterLenovo", "priceRange"];
     const allowedQueryParams = ["page", "search", ...allowedFilters];
@@ -194,13 +193,17 @@ const getProducts = async (req, res) => {
 
     const total = await Product.countDocuments(query);
     const products = await Product.find(query).skip(skip).limit(limit);
+    console.log("Fetched Products:", products);
 
-    if (products.length === 0 && page > 1) {
-      return res.status(404).json([]);
-    }
+    return res.status(200).json({
+      products: products || [],
+      total: total ?? 0,
+    });
 
-    res.json({ products, total });
+
+
   } catch (error) {
+      console.error("🔥 COUNT DOCUMENT ERROR:", error);
     res.status(500).json({ error: "Error fetching products" });
   }
 };
@@ -231,7 +234,7 @@ const deleteProduct = async (req, res) => {
 };
 
 // Export the controller functions
-module.exports = {
+export {
   createProduct,
   getProducts,
   getProductById,

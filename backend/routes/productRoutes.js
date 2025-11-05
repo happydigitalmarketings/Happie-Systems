@@ -1,16 +1,19 @@
-const express = require('express');
+import express from 'express';
+import { createProduct, getProducts, getProductById, updateProduct, deleteProduct } from '../controllers/productController.js';
+import multer from 'multer';
+
+// Configure multer to store files in memory
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
+
 const router = express.Router();
-const productController = require('../controllers/productController');
+router.post('/products', upload.single('imageFile'), createProduct);
+router.get('/products', getProducts);
+router.get('/products/:id', getProductById);
+router.put('/products/:id', upload.single('imageFile'), updateProduct);
+router.delete('/products/:id', deleteProduct);
 
-
-const upload = require('../middleware/fileUploadMiddleware');
-router.post('/products', upload.single('imageFile'), productController.createProduct);
-router.get('/products', productController.getProducts);
-router.get('/products/:id', productController.getProductById);
-router.put('/products/:id', upload.single('imageFile'), productController.updateProduct);
-router.delete('/products/:id', productController.deleteProduct);
-
-module.exports = router;
+export default router;
 
 
 
