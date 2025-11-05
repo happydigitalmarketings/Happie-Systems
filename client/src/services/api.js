@@ -38,7 +38,7 @@ export const getAllProducts = async ({search, page, filters}) => {
 });
 
 const response = await api.get(`api/products?${queryParams.toString()}`);
-console.log("res", response.data)
+
 
 return response.data;
 

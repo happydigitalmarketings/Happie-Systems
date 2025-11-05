@@ -53,24 +53,16 @@ function HomePage({ isAuthenticated }) {
   console.log("data", data);
 
   useEffect(() => {
-    console.log("useeffect");
-    
-if (Array.isArray(data)) {
+  
+  if (data && Array.isArray(data.products)) {
   if (page === 1) {
-    setProducts(data);
+    setProducts(data.products);
   } else {
-    setProducts((prev) => [...prev, ...data]);
+    setProducts((prev) => [...prev, ...data.products]);
   }
-  setTotalProduct(data.length);
+  setTotalProduct(data.products.length);
 }
-
-
-
-
-
-
-
-   
+ 
   }, [data]);
 
   const handleSearchChange = (e) => {
