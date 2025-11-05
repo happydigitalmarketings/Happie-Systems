@@ -50,18 +50,27 @@ function HomePage({ isAuthenticated }) {
     keepPreviousData: true,
     staleTime: 5000,
   });
+  console.log("data", data);
 
   useEffect(() => {
     console.log("useeffect");
-    if (data?.products) {
-      if (page === 1) {
-        setProducts(data.products);
-      } else {
-        setProducts((prev) => [...prev, ...data.products]); // Append new products
-      }
-      setTotalProduct(data.total); 
-      console.log(data.products);
-    }
+    
+if (Array.isArray(data)) {
+  if (page === 1) {
+    setProducts(data);
+  } else {
+    setProducts((prev) => [...prev, ...data]);
+  }
+  setTotalProduct(data.length);
+}
+
+
+
+
+
+
+
+   
   }, [data]);
 
   const handleSearchChange = (e) => {
