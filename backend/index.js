@@ -4,6 +4,8 @@ import cors from "cors";
 import dotenv from "dotenv";
 import productRoutes from "./routes/productRoutes.js";
 
+import authRoutes from "./routes/authRoutes.js";
+
 dotenv.config({
   path: process.env.NODE_ENV === "production" ? ".env" : ".env.development",
 });
@@ -32,6 +34,9 @@ app.get("/", (req, res) => {
 
 // ✅ Product API Routes (Mongo is already connected above)
 app.use("/api", productRoutes);
+// ✅ Auth API Routes
+app.use('/api/auth', authRoutes);
+
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

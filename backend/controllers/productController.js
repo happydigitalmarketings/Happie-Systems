@@ -169,7 +169,7 @@ const getProducts = async (req, res) => {
  if (priceRange) {
   switch (priceRange) {
     case "under15000":
-      query.price = { $lt: 15000 };
+      query.price = { $gte: 15000, $lte: 15999 };
       break;
     case "16000to20000":
       query.price = { $gte: 16000, $lte: 20000 };

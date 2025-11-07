@@ -1,12 +1,13 @@
-const User = require("../models/userModel");
-var jwt = require("jsonwebtoken");
+import User from "../models/userModel.js";
+import jwt from "jsonwebtoken";
 
 const signInToken = (id) => {
   return jwt.sign({ id }, process.env.SECRET_STR, {
     expiresIn: process.env.LOGIN_EXPIRES,
   });
 };
-exports.signUp = async (req, res) => {
+
+export const signUp = async (req, res) => {
   try {
     const newUser = await User.create(req.body);
     const token = signInToken(newUser._id);
@@ -20,22 +21,20 @@ exports.signUp = async (req, res) => {
   }
 };
 
-exports.login = async (req, res) => {
-  // const email = req.body.email;
-  // const password = req.body.password;
-
+export const login = async (req, res) => {
   const { email, password } = req.body;
   if (!email || !password) {
-    res.status(400).json({
+    return res.status(400).json({
       status: "error",
       message: "Please provide both email and password!",
     });
   }
+
   const user = await User.findOne({ email }).select("+password");
   if (!user || !(await user.comparePasswordDb(password, user.password))) {
-    res.status(400).json({
+    return res.status(400).json({
       status: "error",
-      message: "Password doesnt matches",
+      message: "Password doesn't match",
     });
   }
 
