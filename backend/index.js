@@ -11,7 +11,29 @@ dotenv.config({
 });
 
 const app = express();
-app.use(cors());
+
+const allowedOrigins = [
+  "https://www.happysystems.in",
+  "http://localhost:3000",
+];
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("CORS not allowed"));
+      }
+    },
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+     allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
+  })
+);
+
+app.options("*", cors()); // ❗ important for preflight
+
 app.use(express.json());
 
 // ✅ MongoDB Connect (run only once)
