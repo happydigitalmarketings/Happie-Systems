@@ -14,7 +14,7 @@ const app = express();
 
 const allowedOrigins = [
   "https://www.happysystems.in",
-  "https://happie-systems.vercel.app",
+  "https://happie-systems-server.vercel.app",
   "http://localhost:3001",
 ];
 
