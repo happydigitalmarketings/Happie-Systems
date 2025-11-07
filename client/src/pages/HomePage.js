@@ -40,7 +40,7 @@ function HomePage({ isAuthenticated }) {
   ).current;
 
   const { data, isLoading, isError, error } = useQuery({
-    queryKey: ["products", searchQuery, filters, page], // query key
+    queryKey: ["products", searchQuery, JSON.stringify(filters), page ],
     queryFn: () =>
       getAllProducts({
         search: searchQuery.trim(),
@@ -52,18 +52,35 @@ function HomePage({ isAuthenticated }) {
   });
   console.log("data", data);
 
+  const apiProducts = data?.products ?? data?.data?.products ?? data?.data ?? [];
+  const apiTotal = Number(data?.total ?? data?.data?.total ?? (Array.isArray(data) ? data.length : 0) ?? 0);
+
+  console.log("API raw data:", data);
+  console.log("Parsed API:", { apiProductsLength: apiProducts?.length, apiTotal });
+
+  console.log('HomePage state:', { page, productsLength: products.length, totalProduct });
+
+
+
+
   useEffect(() => {
+    if (data?.products) {
+      if (page === 1) setProducts(data.products);
+      else setProducts(prev => [...prev, ...data.products]);
+
+      setTotalProduct(Number(data.total) || 0);
+    }
+  }, [data, page]);
+
+  // --- Add these lines AFTER the effect and before the return ---
+  const PAGE_SIZE = 10; // must match backend limit (or pass limit param)
+  const totalPages = Math.ceil(totalProduct / PAGE_SIZE);
+  const hasMore = page < totalPages;
+
+
+
+
   
-  if (data && Array.isArray(data.products)) {
-  if (page === 1) {
-    setProducts(data.products);
-  } else {
-    setProducts((prev) => [...prev, ...data.products]);
-  }
-  setTotalProduct(data.products.length);
-}
- 
-  }, [data]);
 
   const handleSearchChange = (e) => {
     const query = e.target.value;
@@ -116,8 +133,7 @@ function HomePage({ isAuthenticated }) {
 
 
   const handleDelete = async (productId) => {
-    debugger;
-    try {
+     try {
       await deleteProduct(productId);
       queryClient.invalidateQueries(["products", searchQuery, filters]);
      
@@ -163,8 +179,8 @@ function HomePage({ isAuthenticated }) {
 
             <InfiniteScroll
               dataLength={products.length}
-              next={() => setPage((prevPage) => prevPage + 1)}
-              hasMore={products.length < totalProduct}
+           next={() => { console.log('InfiniteScroll.next fired, page=', page); setPage(p => p + 1); }}
+              hasMore={hasMore}
               scrollThreshold={0.9}
               loader={isLoading ? <LoadingSpinner /> : <h4></h4>}
             >
