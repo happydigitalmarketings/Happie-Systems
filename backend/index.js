@@ -14,7 +14,7 @@ const app = express();
 
 const allowedOrigins = [
   "https://www.happysystems.in",
-  "http://localhost:3000",
+  "http://localhost:3001",
 ];
 
 app.use(
@@ -32,7 +32,7 @@ app.use(
   })
 );
 
-app.options("*", cors()); // ❗ important for preflight
+
 
 app.use(express.json());
 
