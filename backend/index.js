@@ -14,6 +14,7 @@ const app = express();
 
 const allowedOrigins = [
   "https://www.happysystems.in",
+  "https://happie-systems.vercel.app",
   "http://localhost:3001",
 ];
 
@@ -29,6 +30,7 @@ app.use(
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
      allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
+     optionsSuccessStatus: 200 
   })
 );
 
