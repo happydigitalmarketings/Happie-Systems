@@ -225,13 +225,13 @@ const getProducts = async (req, res) => {
 
     const { search, filterDell, filterHp, filterLenovo, priceRange } = req.query;
 
-    let query = {};
+  let query = {};
 
-    // 🔍 Text search
-    if (search) {
-      query.$text = { $search: search };
-    }
-
+  if (searchQuery.length >= 2) {
+    query = {
+      $text: { $search: searchQuery },
+    };
+  }
     // ✅ Multiple brand filter
     const selectedBrands = [];
     if (filterDell === "true") selectedBrands.push("Dell");
