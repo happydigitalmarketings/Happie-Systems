@@ -124,79 +124,135 @@ const updateProduct = async (req, res) => {
   }
 };
 
+// const getProducts = async (req, res) => {
+//   try {
+//     const page = parseInt(req.query.page) || 1;
+//     const limit = 10;
+//     const skip = (page - 1) * limit;
+
+//     const {
+//       page: _page,
+//       search,
+//       filterDell,
+//       filterHp,
+//       filterLenovo,
+//       priceRange,
+//       ...otherFilters
+//     } = req.query;
+//     const allowedFilters = [
+//       "filterDell",
+//       "filterHp",
+//       "filterLenovo",
+//       "priceRange",
+//     ];
+//     const allowedQueryParams = ["page", "search", ...allowedFilters];
+
+//     const invalidKeys = Object.keys(otherFilters).filter(
+//       (key) => !allowedQueryParams.includes(key)
+//     );
+
+//     if (invalidKeys.length > 0) {
+//       return res.status(400).json({
+//         error: `Invalid filter keys: ${invalidKeys.join(
+//           ", "
+//         )}. Allowed filters are: ${allowedFilters.join(", ")}.`,
+//       });
+//     }
+
+//     let query = {};
+
+//     if (search) {
+//       query.$text = { $search: search };
+//     }
+
+//     const selectedBrands = [];
+//     if (filterDell === "true") selectedBrands.push("Dell");
+//     if (filterHp === "true") selectedBrands.push("HP");
+//     if (filterLenovo === "true") selectedBrands.push("Lenovo");
+//     if (selectedBrands.length > 0) {
+//       query.brand = { $in: selectedBrands };
+//     }
+
+//     // Price range filter
+//     if (priceRange) {
+//       switch (priceRange) {
+//         case "under15000":
+//           query.price = { $gte: 15000, $lte: 15999 };
+//           break;
+//         case "16000to20000":
+//           query.price = { $gte: 16000, $lte: 20000 };
+//           break;
+//         case "25000to30000":
+//           query.price = { $gte: 25000, $lte: 30000 };
+//           break;
+//         case "35000to40000":
+//           query.price = { $gte: 35000, $lte: 40000 };
+//           break;
+//         case "45000to50000":
+//           query.price = { $gte: 45000, $lte: 50000 };
+//           break;
+//         case "above50000":
+//           query.price = { $gt: 50000 };
+//           break;
+//         default:
+//           break;
+//       }
+//     }
+
+//     const [total, products] = await Promise.all([
+//       Object.keys(query).length === 0
+//         ? Product.estimatedDocumentCount()
+//         : Product.countDocuments(query),
+
+//       Product.find(query).skip(skip).limit(limit).lean(),
+//     ]);
+
+//     return res.status(200).json({
+//       products: products || [],
+//       total: total ?? 0,
+//     });
+//   } catch (error) {
+//     console.error("🔥 COUNT DOCUMENT ERROR:", error);
+//     res.status(500).json({ error: "Error fetching products" });
+//   }
+// };
+
 const getProducts = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = 10;
     const skip = (page - 1) * limit;
 
-    const {
-      page: _page,
-      search,
-      filterDell,
-      filterHp,
-      filterLenovo,
-      priceRange,
-      ...otherFilters
-    } = req.query;
-    const allowedFilters = [
-      "filterDell",
-      "filterHp",
-      "filterLenovo",
-      "priceRange",
-    ];
-    const allowedQueryParams = ["page", "search", ...allowedFilters];
-
-    const invalidKeys = Object.keys(otherFilters).filter(
-      (key) => !allowedQueryParams.includes(key)
-    );
-
-    if (invalidKeys.length > 0) {
-      return res.status(400).json({
-        error: `Invalid filter keys: ${invalidKeys.join(
-          ", "
-        )}. Allowed filters are: ${allowedFilters.join(", ")}.`,
-      });
-    }
+    const { search, filterDell, filterHp, filterLenovo, priceRange } = req.query;
 
     let query = {};
 
+    // 🔍 Text search
     if (search) {
       query.$text = { $search: search };
     }
-    
+
+    // ✅ Multiple brand filter
     const selectedBrands = [];
     if (filterDell === "true") selectedBrands.push("Dell");
     if (filterHp === "true") selectedBrands.push("HP");
     if (filterLenovo === "true") selectedBrands.push("Lenovo");
+
     if (selectedBrands.length > 0) {
       query.brand = { $in: selectedBrands };
     }
 
-    // Price range filter
+    // ✅ Price filters
     if (priceRange) {
-      switch (priceRange) {
-        case "under15000":
-          query.price = { $gte: 15000, $lte: 15999 };
-          break;
-        case "16000to20000":
-          query.price = { $gte: 16000, $lte: 20000 };
-          break;
-        case "25000to30000":
-          query.price = { $gte: 25000, $lte: 30000 };
-          break;
-        case "35000to40000":
-          query.price = { $gte: 35000, $lte: 40000 };
-          break;
-        case "45000to50000":
-          query.price = { $gte: 45000, $lte: 50000 };
-          break;
-        case "above50000":
-          query.price = { $gt: 50000 };
-          break;
-        default:
-          break;
-      }
+      const ranges = {
+        under15000: { $gte: 15000, $lte: 15999 },
+        "16000to20000": { $gte: 16000, $lte: 20000 },
+        "25000to30000": { $gte: 25000, $lte: 30000 },
+        "35000to40000": { $gte: 35000, $lte: 40000 },
+        "45000to50000": { $gte: 45000, $lte: 50000 },
+        above50000: { $gt: 50000 },
+      };
+      query.price = ranges[priceRange];
     }
 
     const [total, products] = await Promise.all([
@@ -204,15 +260,20 @@ const getProducts = async (req, res) => {
         ? Product.estimatedDocumentCount()
         : Product.countDocuments(query),
 
-      Product.find(query).skip(skip).limit(limit).lean(),
+      Product.find(query)
+        .collation({ locale: "en", strength: 2 }) // Fixes case-sensitive filtering
+        .skip(skip)
+        .limit(limit)
+        .lean()
+        .sort({ createdAt: -1 }) // newest first
     ]);
 
     return res.status(200).json({
-      products: products || [],
-      total: total ?? 0,
+      products,
+      total,
     });
   } catch (error) {
-    console.error("🔥 COUNT DOCUMENT ERROR:", error);
+    console.error("🔥 ERROR FETCHING PRODUCTS:", error);
     res.status(500).json({ error: "Error fetching products" });
   }
 };
