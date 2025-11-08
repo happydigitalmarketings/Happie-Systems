@@ -31,6 +31,8 @@ const productSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+productSchema.index({ title: "text", description: "text" });
+
 // ✅ IMPORTANT FIX FOR VERCEL + HOT RELOAD
 const Product =
   mongoose.models.Product || mongoose.model("Product", productSchema);

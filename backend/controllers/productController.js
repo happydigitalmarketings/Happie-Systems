@@ -126,15 +126,25 @@ const updateProduct = async (req, res) => {
 
 const getProducts = async (req, res) => {
   try {
-
     const page = parseInt(req.query.page) || 1;
     const limit = 10;
     const skip = (page - 1) * limit;
-   
 
-    const { page: _page, search, filterDell, filterHp, filterLenovo, priceRange, ...otherFilters } =
-      req.query;
-    const allowedFilters = ["filterDell", "filterHp", "filterLenovo", "priceRange"];
+    const {
+      page: _page,
+      search,
+      filterDell,
+      filterHp,
+      filterLenovo,
+      priceRange,
+      ...otherFilters
+    } = req.query;
+    const allowedFilters = [
+      "filterDell",
+      "filterHp",
+      "filterLenovo",
+      "priceRange",
+    ];
     const allowedQueryParams = ["page", "search", ...allowedFilters];
 
     const invalidKeys = Object.keys(otherFilters).filter(
@@ -152,11 +162,9 @@ const getProducts = async (req, res) => {
     let query = {};
 
     if (search) {
-      query.$or = [
-        { title: { $regex: search, $options: "i" } },
-        { description: { $regex: search, $options: "i" } },
-      ];
+      query.$text = { $search: search };
     }
+    
     const selectedBrands = [];
     if (filterDell === "true") selectedBrands.push("Dell");
     if (filterHp === "true") selectedBrands.push("HP");
@@ -165,45 +173,46 @@ const getProducts = async (req, res) => {
       query.brand = { $in: selectedBrands };
     }
 
- // Price range filter
- if (priceRange) {
-  switch (priceRange) {
-    case "under15000":
-      query.price = { $gte: 15000, $lte: 15999 };
-      break;
-    case "16000to20000":
-      query.price = { $gte: 16000, $lte: 20000 };
-      break;
-    case "25000to30000":
-      query.price = { $gte: 25000, $lte: 30000 };
-      break;
-    case "35000to40000":
-      query.price = { $gte: 35000, $lte: 40000 };
-      break;
-    case "45000to50000":
-      query.price = { $gte: 45000, $lte: 50000 };
-      break;
-    case "above50000":
-      query.price = { $gt: 50000 };
-      break;
-    default:
-      break;
-  }
-}
+    // Price range filter
+    if (priceRange) {
+      switch (priceRange) {
+        case "under15000":
+          query.price = { $gte: 15000, $lte: 15999 };
+          break;
+        case "16000to20000":
+          query.price = { $gte: 16000, $lte: 20000 };
+          break;
+        case "25000to30000":
+          query.price = { $gte: 25000, $lte: 30000 };
+          break;
+        case "35000to40000":
+          query.price = { $gte: 35000, $lte: 40000 };
+          break;
+        case "45000to50000":
+          query.price = { $gte: 45000, $lte: 50000 };
+          break;
+        case "above50000":
+          query.price = { $gt: 50000 };
+          break;
+        default:
+          break;
+      }
+    }
 
-    const total = await Product.countDocuments(query);
-    const products = await Product.find(query).skip(skip).limit(limit);
-    console.log("Fetched Products:", products);
+    const [total, products] = await Promise.all([
+      Object.keys(query).length === 0
+        ? Product.estimatedDocumentCount()
+        : Product.countDocuments(query),
+
+      Product.find(query).skip(skip).limit(limit).lean(),
+    ]);
 
     return res.status(200).json({
       products: products || [],
       total: total ?? 0,
     });
-
-
-
   } catch (error) {
-      console.error("🔥 COUNT DOCUMENT ERROR:", error);
+    console.error("🔥 COUNT DOCUMENT ERROR:", error);
     res.status(500).json({ error: "Error fetching products" });
   }
 };
