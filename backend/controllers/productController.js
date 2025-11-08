@@ -243,15 +243,16 @@ const getProducts = async (req, res) => {
     }
 
     // ✅ Price filters
-    if (priceRange) {
-      const ranges = {
-        under15000: { $gte: 15000, $lte: 15999 },
-        "16000to20000": { $gte: 16000, $lte: 20000 },
-        "25000to30000": { $gte: 25000, $lte: 30000 },
-        "35000to40000": { $gte: 35000, $lte: 40000 },
-        "45000to50000": { $gte: 45000, $lte: 50000 },
-        above50000: { $gt: 50000 },
-      };
+    const ranges = {
+      under15000: { $lte: 15000 },
+      "16000to20000": { $gte: 16000, $lte: 20000 },
+      "25000to30000": { $gte: 25000, $lte: 30000 },
+      "35000to40000": { $gte: 35000, $lte: 40000 },
+      "45000to50000": { $gte: 45000, $lte: 50000 },
+      above50000: { $gt: 50000 },
+    };
+
+    if (priceRange && ranges[priceRange]) {
       query.price = ranges[priceRange];
     }
 
@@ -261,17 +262,17 @@ const getProducts = async (req, res) => {
         : Product.countDocuments(query),
 
       Product.find(query)
-        .collation({ locale: "en", strength: 2 }) // Fixes case-sensitive filtering
         .skip(skip)
-        .limit(limit)
+        .limit(limit)       
+        .sort({ createdAt: -1 })
         .lean()
-        .sort({ createdAt: -1 }) // newest first
     ]);
 
-    return res.status(200).json({
-      products,
-      total,
+   res.status(200).json({
+      products: products || [],
+      total: total ?? 0,
     });
+
   } catch (error) {
     console.error("🔥 ERROR FETCHING PRODUCTS:", error);
     res.status(500).json({ error: "Error fetching products" });
