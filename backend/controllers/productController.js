@@ -256,19 +256,36 @@ const getProducts = async (req, res) => {
       query.price = ranges[priceRange];
     }
 
-    const [total, products] = await Promise.all([
-      Product.countDocuments(query),
+    // const [total, products] = await Promise.all([
+    //   Product.countDocuments(query),
 
-      Product.find(query)
-        .sort({ createdAt: -1 })
-        .skip(skip)
-        .limit(limit)   
-        .lean()
+    //   Product.find(query)
+    //     .sort({ createdAt: -1 })
+    //     .skip(skip)
+    //     .limit(limit)   
+    //     .lean()
        
+    // ]);
+
+       // ✅ Aggregation pipeline (single DB call)
+    const result = await Product.aggregate([
+      { $match: query },
+      {
+        $facet: {
+          metadata: [{ $count: "total" }],
+          products: [
+            { $sort: { createdAt: -1 } },
+            { $skip: skip },
+            { $limit: limit },
+          ],
+        },
+      },
     ]);
 
+    const total = result[0].metadata[0]?.total || 0;
+
    res.status(200).json({
-      products: products || [],
+      products: result[0].products || [],
       total: total ?? 0,
     });
 
