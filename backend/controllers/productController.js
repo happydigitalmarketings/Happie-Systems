@@ -257,15 +257,14 @@ const getProducts = async (req, res) => {
     }
 
     const [total, products] = await Promise.all([
-      Object.keys(query).length === 0
-        ? Product.estimatedDocumentCount()
-        : Product.countDocuments(query),
+      Product.countDocuments(query),
 
       Product.find(query)
-        .skip(skip)
-        .limit(limit)       
         .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)   
         .lean()
+       
     ]);
 
    res.status(200).json({
