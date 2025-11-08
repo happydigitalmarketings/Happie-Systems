@@ -225,13 +225,13 @@ const getProducts = async (req, res) => {
 
     const { search, filterDell, filterHp, filterLenovo, priceRange } = req.query;
 
-  let query = {};
+    let query = {};
 
-  if (searchQuery.length >= 2) {
-    query = {
-      $text: { $search: searchQuery },
-    };
-  }
+    // 🔍 Text search
+    if (search) {
+      query.$text = { $search: search };
+    }
+
     // ✅ Multiple brand filter
     const selectedBrands = [];
     if (filterDell === "true") selectedBrands.push("Dell");
@@ -264,7 +264,7 @@ const getProducts = async (req, res) => {
     //     .skip(skip)
     //     .limit(limit)   
     //     .lean()
-       
+
     // ]);
 
        // ✅ Aggregation pipeline (single DB call)
