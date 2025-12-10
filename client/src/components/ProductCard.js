@@ -15,22 +15,7 @@ function ProductCard({ product, onEdit, onDelete, isAuthenticated }) {
         <img src={product.imageFile} alt={product.title} />
       </div>
 
-      <div className="available-wrapper">
-        {
-          product.availableStatus ? (
-
-    
-        <div className="available">
-         Available 
-         </div>) : 
-         ( <div className="not-available">
-          Not Available 
-         </div>)
-        }
-           
-       
-         
-         </div>
+   
       <div className="product-details">
         <p>
           <b>{product.title} </b>
